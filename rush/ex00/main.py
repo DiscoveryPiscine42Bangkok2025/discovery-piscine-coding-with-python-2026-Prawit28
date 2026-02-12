@@ -1,25 +1,19 @@
 from checkmate import checkmate
 
 def main():
-    # Example 1: Rook checking King
-    board1 = """
+    board = """\
 R...
 .K..
-....
-....
+..P.
+....\
 """
-    # Example 2: King not in check
-    board2 = """
+    print(checkmate(board)) 
+
+    board = """\
 ..
-K.
+.K\
 """
-    
-    # We wrap in try/except to ensure the program never crashes as per instructions
-    try:
-        checkmate(board1)
-        # checkmate(board2)
-    except Exception:
-        pass
+    print(checkmate(board)) 
 
 if __name__ == "__main__":
     main()

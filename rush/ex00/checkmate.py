@@ -1,17 +1,22 @@
 def checkmate(board_str):
+    # 1. ตรวจสอบความถูกต้องของกระดาน (Error Handling)
     if not board_str or not board_str.strip():
-        return
+        return "Error"
 
-    # Split board into lines and filter out empty strings
-    lines = [line for line in board_str.strip().split('\n') if line]
+    # แยกบรรทัดและกำจัดช่องว่าง
+    lines = [line.strip() for line in board_str.strip().split('\n') if line.strip()]
+    
+    if not lines:
+        return "Error"
+
     size = len(lines)
     
-    # Validation: Board must be square
+    # ตรวจสอบว่าเป็นสี่เหลี่ยมจัตุรัสหรือไม่
     for line in lines:
         if len(line) != size:
-            return
+            return "Error"
 
-    # Find King's position (row, col)
+    # 2. ค้นหาตำแหน่ง King
     k_pos = None
     for r in range(size):
         for c in range(size):
@@ -22,53 +27,46 @@ def checkmate(board_str):
             break
             
     if not k_pos:
-        return
+        return "Error"
 
     kr, kc = k_pos
 
-    # Directions: (row_delta, col_delta)
-    # Straight: Up, Down, Left, Right
+    # ฟังก์ชันช่วยเช็คทิศทาง (Ray Casting) สำหรับ R, B, Q
+    def check_direction(dr, dc, valid_pieces):
+        r, c = kr + dr, kc + dc
+        while 0 <= r < size and 0 <= c < size:
+            piece = lines[r][c]
+            if piece != '.':
+                # ถ้าเจอชิ้นส่วน ตรวจสอบว่าเป็นศัตรูที่กินเราได้หรือไม่
+                if piece in valid_pieces:
+                    return True
+                return False # โดนบัง (Blocked)
+            r += dr
+            c += dc
+        return False
+
+    # ตรวจสอบแนวตรง (Rook, Queen)
     straight = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-    # Diagonal: Up-Left, Up-Right, Down-Left, Down-Right
-    diagonal = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
-
-    # 1. Check for Rooks (R) and Queens (Q) in straight lines
     for dr, dc in straight:
-        r, c = kr + dr, kc + dc
-        while 0 <= r < size and 0 <= c < size:
-            piece = lines[r][c]
-            if piece == 'R' or piece == 'Q':
-                print("Success")
-                return
-            elif piece != '.': # Blocked by another piece
-                break
-            r += dr
-            c += dc
+        if check_direction(dr, dc, {'R', 'Q'}):
+            return "Success"
 
-    # 2. Check for Bishops (B) and Queens (Q) in diagonal lines
+    # ตรวจสอบแนวทแยง (Bishop, Queen)
+    diagonal = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
     for dr, dc in diagonal:
-        r, c = kr + dr, kc + dc
-        while 0 <= r < size and 0 <= c < size:
-            piece = lines[r][c]
-            if piece == 'B' or piece == 'Q':
-                print("Success")
-                return
-            elif piece != '.': # Blocked by another piece
-                break
-            r += dr
-            c += dc
+        if check_direction(dr, dc, {'B', 'Q'}):
+            return "Success"
 
-    # 3. Check for Pawns (P)
-    # Note: In the subject's diagram, Pawns attack from "above" relative to the board layout
-    # Assuming the board is oriented with enemy Pawns moving from top to bottom (row+1)
-    # or bottom to top (row-1). Usually, in these subjects, 'P' captures from diagonal rows.
-    # We check the two diagonals immediately above the King.
-    pawn_check_positions = [(kr - 1, kc - 1), (kr - 1, kc + 1)]
+    # 3. ตรวจสอบ Pawn (P)
+    # Pawn โจมตีทแยงขึ้นด้านบน (Row - 1)
+    # ดังนั้นถ้าเรายืนที่ King เราต้องมองหา Pawn ที่มาจากแถวด้านล่าง (Row + 1)
+    # เช็คตำแหน่งล่างซ้าย (kr+1, kc-1) และ ล่างขวา (kr+1, kc+1)
+    pawn_check_positions = [(kr + 1, kc - 1), (kr + 1, kc + 1)]
+    
     for pr, pc in pawn_check_positions:
         if 0 <= pr < size and 0 <= pc < size:
             if lines[pr][pc] == 'P':
-                print("Success")
-                return
+                return "Success"
 
-    # If no piece is found
-    print("Fail")
+    # ถ้าไม่เจอการรุกใดๆ เลย
+    return "Fail"
