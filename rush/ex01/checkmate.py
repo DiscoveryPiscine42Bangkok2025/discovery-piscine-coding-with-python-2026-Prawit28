@@ -16,15 +16,14 @@ def checkmate(board_str):
         if len(line) != size:
             return "Error not squ"
 
-    # 2. ค้นหาตำแหน่ง King
+    # ค้นหาตำแหน่ง King
     k_pos = None
     for r in range(size):
         for c in range(size):
-            if lines[r][c] == 'K':
+           if lines[r][c] == 'K':
+                if k_pos:
+                    return "Error"
                 k_pos = (r, c)
-                break
-        if k_pos:
-            break
             
     if not k_pos:
         return "Error"
@@ -40,8 +39,8 @@ def checkmate(board_str):
                 # ถ้าเจอชิ้นส่วน ตรวจสอบว่าเป็นศัตรูที่กินเราได้หรือไม่
                 if piece in valid_pieces:
                     return True
-                return False # โดนบัง (Blocked)
-            r += dr
+                return False # Blocked
+            r += dr 
             c += dc
         return False
 

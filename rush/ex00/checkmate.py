@@ -21,10 +21,9 @@ def checkmate(board_str):
     for r in range(size):
         for c in range(size):
             if lines[r][c] == 'K':
+                if k_pos:
+                    return "Error"
                 k_pos = (r, c)
-                break
-        if k_pos:
-            break
             
     if not k_pos:
         return "Error"
